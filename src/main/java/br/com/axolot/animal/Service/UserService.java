@@ -1,5 +1,6 @@
 package br.com.axolot.animal.Service;
 
+import br.com.axolot.animal.dtos.UserChangePassword;
 import br.com.axolot.animal.dtos.UserRegister;
 import br.com.axolot.animal.model.UserEntity;
 import br.com.axolot.animal.repository.UserRepository;
@@ -8,7 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -31,10 +32,16 @@ public class UserService {
         userRepository.save(buildUser(userRegister));
     }
 
+    public void changePassword(UserChangePassword userChangePassword) {
+        Optional<UserEntity> user = userRepository.findByUsername(userChangePassword.getUsername());
+        // Implementar lógica de alteração de senha
+
+//        userRepository.save(buildUser(userRegister));
+    }
+
     public Boolean checkUsernameExist(String username) {
         return userRepository.findByUsername(username).isPresent();
     }
-
 
     public Boolean login(UserRegister userRegister) {
         UserEntity user = userRepository.findByUsername(userRegister.getUsername()).get();
@@ -46,9 +53,5 @@ public class UserService {
                 .username(userRegister.getUsername())
                 .password(passwordEncoder.encode(userRegister.getPassword()))
                 .build();
-    }
-
-    public List<UserEntity> findAll() {
-        return userRepository.findAll();
     }
 }

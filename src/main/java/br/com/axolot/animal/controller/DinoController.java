@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/api")
+@RequestMapping(path = "/dino")
 public class DinoController {
 
     @Autowired
     DinoService dinoService;
 
-    @PostMapping(path = "/dinosaurus")
+    @PostMapping(path = "/create")
     public ResponseEntity<?> createDinosaur(@RequestBody DinoDto dinoDto) {
 
         try {
@@ -32,18 +32,16 @@ public class DinoController {
         }
     }
 
-    @GetMapping(path = "/dinosaurus")
+    @GetMapping(path = "/dinosaur")
     public List<DinoDto> findAll() {
-
         return dinoService.findAll();
 
     }
 
-    @GetMapping(path = "/dinosaurus/{id}")
+    @GetMapping(path = "/dinosaur/{id}")
     public ResponseEntity<?> findById(@PathVariable Long id) {
 
         try {
-
             dinoService.findById(id);
             return ResponseEntity.ok().body(true);
         } catch (Exception e) {
