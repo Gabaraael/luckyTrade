@@ -1,12 +1,15 @@
 package br.com.axolot.animal.Service;
 
-import br.com.axolot.animal.dtos.UserChangePassword;
+import br.com.axolot.animal.dtos.UserLogin;
+import br.com.axolot.animal.dtos.UserPasswordChange;
 import br.com.axolot.animal.dtos.UserRegister;
 import br.com.axolot.animal.model.UserEntity;
 import br.com.axolot.animal.repository.UserRepository;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
@@ -23,29 +26,61 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void register(UserRegister userRegister) {
-        if(checkUsernameExist(userRegister.getUsername())) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT, "This username is already in use"
-            );
-        }
+    @Transactional
+    public void register(@NotNull UserRegister userRegister) {
+
+        if (checkUsernameExist(userRegister.getUsername()))
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "This username is already in use");
+
         userRepository.save(buildUser(userRegister));
     }
 
-    public void changePassword(UserChangePassword userChangePassword) {
-        Optional<UserEntity> user = userRepository.findByUsername(userChangePassword.getUsername());
-        // Implementar lógica de alteração de senha
+    @Transactional
+    public void changePassword(UserPasswordChange userPasswordChange) {
+        UserEntity userEntity = findByUsername(userPasswordChange.getUsername());
+        String rawOldPassword = userPasswordChange.getOldPassword();
+        String encodedPassword = userEntity.getPassword();
 
-//        userRepository.save(buildUser(userRegister));
+        Boolean matchPassword = checkPassword(rawOldPassword, encodedPassword);
+
+        if (matchPassword) {
+            encodedPassword = encodePassword(userPasswordChange.getNewPassword());
+            userEntity.setPassword(encodedPassword);
+            return;
+        }
+
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password not match");
+    }
+
+    public Boolean login(UserLogin userLogin) {
+        UserEntity user = findByUsername(userLogin.getUsername());
+        String rawPassword = userLogin.getPassword();
+        String encodedPassword = user.getPassword();
+
+        return checkPassword(rawPassword, encodedPassword);
+    }
+
+    public Boolean checkPassword(String rawPassword, String encodedPassword) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
+    }
+
+    public String encodePassword(String password) {
+        return passwordEncoder.encode(password);
     }
 
     public Boolean checkUsernameExist(String username) {
         return userRepository.findByUsername(username).isPresent();
     }
 
-    public Boolean login(UserRegister userRegister) {
-        UserEntity user = userRepository.findByUsername(userRegister.getUsername()).get();
-        return passwordEncoder.matches(userRegister.getPassword(), user.getPassword());
+    public UserEntity findByUsername(String username) {
+        Optional<UserEntity> user = userRepository.findByUsername(username);
+
+        if (user.isPresent())
+            return user.get();
+
+        throw new ResponseStatusException(
+                HttpStatus.CONFLICT, "This username not exist"
+        );
     }
 
     public UserEntity buildUser(UserRegister userRegister) {

@@ -1,7 +1,8 @@
 package br.com.axolot.animal.controller;
 
 import br.com.axolot.animal.Service.UserService;
-import br.com.axolot.animal.dtos.UserChangePassword;
+import br.com.axolot.animal.dtos.UserLogin;
+import br.com.axolot.animal.dtos.UserPasswordChange;
 import br.com.axolot.animal.dtos.UserRegister;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,12 +26,14 @@ public class UserController {
     }
 
     @PostMapping(path = "/login")
-    public ResponseEntity login(@RequestBody UserRegister userRegister) {
-        return ResponseEntity.ok().body(userService.login(userRegister));
+    public ResponseEntity login(@RequestBody UserLogin userLogin) {
+        return ResponseEntity.ok().body(userService.login(userLogin));
     }
 
-//    @PostMapping(path = "/change-password")
-//    public ResponseEntity changePassword(@RequestBody UserChangePassword userChangePassword) {
-//        return ResponseEntity.ok().body(userService.changePassword(userChangePassword));
-//    }
+    //Deve ser um PUT
+    @PostMapping(path = "/change-password")
+    public ResponseEntity changePassword(@RequestBody UserPasswordChange userPasswordChange) {
+        userService.changePassword(userPasswordChange);
+        return ResponseEntity.ok().body(true);
+    }
 }
