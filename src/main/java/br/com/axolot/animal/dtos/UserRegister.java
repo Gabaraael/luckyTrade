@@ -6,6 +6,6 @@ public class UserRegister {
     private String username;
     private String password;
     private String email;
-    private String age;
+    private Long age;
     private String nickname;
 }

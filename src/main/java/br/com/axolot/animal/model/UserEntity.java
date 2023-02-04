@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.UniqueElements;
 
+import java.util.Date;
+
 @Entity
 @Data
 @Builder
@@ -28,5 +30,18 @@ public class UserEntity {
 
     @Column(name = "PASSWORD")
     private String password;
-    
+
+    @Column(name = "EMAIL")
+    private String email;
+
+    @Column(name = "AGE")
+    private Long age;
+
+    @Column(name = "NICKNAME")
+    private String nickname;
+
+    @Column(name = "CREATION_DATE")
+    private Date creationDate;
+
+
 }

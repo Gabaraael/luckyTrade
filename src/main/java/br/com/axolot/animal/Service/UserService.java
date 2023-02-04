@@ -5,14 +5,14 @@ import br.com.axolot.animal.dtos.UserPasswordChange;
 import br.com.axolot.animal.dtos.UserRegister;
 import br.com.axolot.animal.model.UserEntity;
 import br.com.axolot.animal.repository.UserRepository;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Optional;
+import javax.validation.constraints.NotNull;
+import java.util.Optional;  
 
 @Service
 public class UserService {
@@ -32,6 +32,8 @@ public class UserService {
         if (checkUsernameExist(userRegister.getUsername()))
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This username is already in use");
 
+        String passwordEncoded = passwordEncoder.encode(userRegister.getPassword());
+        userRegister.setPassword(passwordEncoded);
         userRepository.save(buildUser(userRegister));
     }
 
@@ -86,7 +88,10 @@ public class UserService {
     public UserEntity buildUser(UserRegister userRegister) {
         return UserEntity.builder()
                 .username(userRegister.getUsername())
-                .password(passwordEncoder.encode(userRegister.getPassword()))
+                .password(userRegister.getPassword())
+                .age(userRegister.getAge())
+                .email(userRegister.getEmail())
+                .nickname(userRegister.getPassword())
                 .build();
     }
 }
